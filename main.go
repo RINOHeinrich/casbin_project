@@ -4,20 +4,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/RINOHeinrich/casbin_project/middleware"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/go-redis/redis/v8"
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
-	// Initialize the Redis client
-	RedisCache = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // Add your Redis password here if required
-		DB:       0,
-	})
 
 	// Initialize the PostgreSQL database connection
 	dsn := "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
@@ -36,7 +30,7 @@ func main() {
 	e := echo.New()
 
 	// Use the Authenticate middleware
-	e.Use(Authenticate(adapter))
+	e.Use(middleware.Authenticate(adapter))
 
 	// Define your routes and handlers here
 	e.GET("/project", func(c echo.Context) error {

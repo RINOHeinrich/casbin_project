@@ -1,54 +1,4 @@
-/*
-	package main
-
-import (
-
-	"github.com/casbin/casbin"
-	"github.com/labstack/echo"
-
-)
-
-	type Enforcer struct {
-		enforcer *casbin.Enforcer
-	}
-
-	func (e *Enforcer) Enforce(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			user, _, _ := c.Request().BasicAuth()
-			method := c.Request().Method
-			path := c.Request().URL.Path
-
-			result, _ := e.enforcer.EnforceSafe(user, path, method)
-
-			if result {
-				return next(c)
-			}
-			return echo.ErrForbidden
-		}
-	}
-
-	/* func main() {
-		e := echo.New()
-		enforcer := Enforcer{enforcer: casbin.NewEnforcer("model.conf", "policy.csv")}
-		e.Use(enforcer.Enforce)
-		e.GET("/project", func(c echo.Context) error {
-			return c.JSON(http.StatusOK, "project get allowed")
-		})
-		e.POST("/project", func(c echo.Context) error {
-			return c.JSON(http.StatusOK, "project post allowed")
-		})
-
-		e.GET("/channel", func(c echo.Context) error {
-			return c.JSON(http.StatusOK, "channel get allowed")
-		})
-
-		e.POST("/channel", func(c echo.Context) error {
-			return c.JSON(http.StatusOK, "channel post allowed")
-		})
-		e.Logger.Fatal(e.Start("0.0.0.0:3000"))
-	}
-*/
-package main
+package middleware
 
 import (
 	"context"
@@ -65,7 +15,11 @@ import (
 )
 
 // Define the Redis client
-var RedisCache *redis.Client
+var RedisCache *redis.Client = redis.NewClient(&redis.Options{
+	Addr:     "localhost:6379",
+	Password: "", // Add your Redis password here if required
+	DB:       0,
+})
 
 func Authenticate(adapter *gormadapter.Adapter) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -84,9 +38,11 @@ func Authenticate(adapter *gormadapter.Adapter) echo.MiddlewareFunc {
 			if err == nil {
 				boolValue, err := strconv.ParseBool(val)
 				if err != nil {
+					print(boolValue)
 					log.Fatal(err)
 				}
-
+			}
+			/*
 				if !boolValue {
 					return &echo.HTTPError{
 						Code:    http.StatusForbidden,
@@ -94,7 +50,7 @@ func Authenticate(adapter *gormadapter.Adapter) echo.MiddlewareFunc {
 					}
 				}
 				return next(e)
-			}
+			}*/
 
 			// Casbin enforces policy
 			ok, err := enforce(ctx, user, path, method, adapter)
