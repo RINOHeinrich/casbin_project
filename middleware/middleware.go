@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -31,7 +30,7 @@ func Authenticate(adapter *gormadapter.Adapter) echo.MiddlewareFunc {
 			method := e.Request().Method
 			path := e.Request().URL.Path
 
-			key := fmt.Sprintf("%s-%s-%s", user, path, method)
+			/*key := fmt.Sprintf("%s-%s-%s", user, path, method)
 
 			result := RedisCache.Get(ctx, key)
 			val, err := result.Result()
@@ -42,7 +41,7 @@ func Authenticate(adapter *gormadapter.Adapter) echo.MiddlewareFunc {
 					log.Fatal(err)
 				}
 			}
-			/*
+
 				if !boolValue {
 					return &echo.HTTPError{
 						Code:    http.StatusForbidden,
